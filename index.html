@@ -17,27 +17,42 @@
 html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif;overscroll-behavior:none;-webkit-user-select:none;user-select:none}
 button{font:inherit;color:inherit;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
 button:active{filter:brightness(1.3)}
+button:disabled{opacity:.35}
 button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
 button.danger{color:var(--danger)}
-input[type=text],textarea{width:100%;font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;-webkit-user-select:text;user-select:text}
+button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+button.sm{padding:6px 10px;font-size:13px;border-radius:8px}
+input[type=text],input[type=tel],textarea,select{width:100%;font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;-webkit-user-select:text;user-select:text}
 textarea{min-height:90px;resize:vertical}
+input:disabled,textarea:disabled,select:disabled{opacity:.6}
 .view{position:fixed;inset:0;display:none;flex-direction:column}
 .view.on{display:flex}
-header{display:flex;align-items:center;gap:8px;padding:calc(var(--safe-t) + 8px) 12px 8px;background:var(--panel);border-bottom:1px solid var(--line)}
-header h1{flex:1;margin:0;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-header button{padding:7px 12px}
+header{display:flex;align-items:center;gap:6px;padding:calc(var(--safe-t) + 8px) 10px 8px;background:var(--panel);border-bottom:1px solid var(--line)}
+header h1{flex:1;margin:0;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+header button{padding:7px 11px}
 #list{flex:1;overflow:auto;padding:12px 12px calc(var(--safe-b) + 24px)}
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.tools button{padding:12px 6px;font-size:14px}
 .card{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px}
 .card .nm{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .card .meta{color:var(--sub);font-size:12px}
+.fh{color:var(--sub);font-size:13px;margin:14px 2px 8px;padding:4px 0}
 .foot{color:var(--sub);font-size:12px;line-height:1.6;margin-top:18px}
 #canvas{flex:1;position:relative;overflow:hidden;touch-action:none;background-image:radial-gradient(var(--line) 1px,transparent 1px);background-size:24px 24px}
 #world{position:absolute;left:0;top:0;transform-origin:0 0}
 #edges{position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible}
-.node{position:absolute;width:140px;min-height:48px;background:var(--panel2);border:1px solid var(--line);border-left:6px solid var(--c,#4f8cff);border-radius:10px;padding:8px 10px;font-size:14px;line-height:1.35;box-shadow:0 2px 8px #0006;touch-action:none}
+.node{position:absolute;width:140px;min-height:48px;background:var(--panel2);border:1px solid var(--line);border-left:6px solid var(--c,#4f8cff);border-radius:10px;padding:8px 10px;font-size:14px;line-height:1.35;box-shadow:0 2px 8px #0006;touch-action:none;-webkit-touch-callout:none}
+.node.pill{border-radius:26px;padding-left:14px}
+.node .pic{display:block;width:100%;height:64px;object-fit:cover;border-radius:6px;margin-bottom:6px;background:#000;pointer-events:none;-webkit-user-drag:none}
 .node .ic{font-size:11px;color:var(--sub);margin-top:3px}
+.node .ms{position:absolute;top:6px;right:6px;width:10px;height:10px;border-radius:50%;border:2px solid #0008;background:#6b7280}
+.node .ms.m1{background:#f5a524}.node .ms.m2{background:#3ecf8e}
 .node.sel{outline:2px solid #fff}
 .node.from{outline:2px dashed var(--accent)}
+.node.dim{opacity:.2}
+.node.dimw{opacity:.4}
+.node.flash{animation:fl .5s ease 4}
+@keyframes fl{50%{outline:3px solid #fff}}
 #banner{position:absolute;left:12px;right:12px;top:10px;background:var(--accent);color:#fff;border-radius:10px;padding:10px;font-size:14px;text-align:center;display:none;z-index:5}
 #fab{position:absolute;right:16px;bottom:calc(var(--safe-b) + 20px);z-index:4;border-radius:28px;padding:14px 20px;box-shadow:0 4px 14px #0008}
 #fit{position:absolute;left:16px;bottom:calc(var(--safe-b) + 20px);z-index:4;border-radius:28px;padding:14px 16px}
@@ -45,30 +60,55 @@ header button{padding:7px 12px}
 .edge-line{stroke:#aab3c5;stroke-width:2;fill:none;pointer-events:none}
 .edge-lbl{fill:var(--text);font-size:12px;paint-order:stroke;stroke:var(--bg);stroke-width:5px;text-anchor:middle;pointer-events:none}
 #shade{position:fixed;inset:0;background:#0008;display:none;z-index:20}
-#sheet{position:fixed;left:0;right:0;bottom:0;max-height:88%;overflow:auto;background:var(--panel);border-top:1px solid var(--line);border-radius:18px 18px 0 0;padding:16px 16px calc(var(--safe-b) + 20px);display:none;z-index:21}
-#sheet .row{margin-bottom:14px}
+#sheet{position:fixed;left:0;right:0;bottom:0;max-height:90%;overflow:auto;background:var(--panel);border-top:1px solid var(--line);border-radius:18px 18px 0 0;padding:16px 16px calc(var(--safe-b) + 20px);display:none;z-index:21;-webkit-overflow-scrolling:touch}
+#sheet .row{margin-bottom:16px}
 #sheet label{display:block;font-size:12px;color:var(--sub);margin-bottom:5px}
-#sheet .btns{display:flex;flex-wrap:wrap;gap:8px}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.btns a{text-decoration:none}
+.seg{display:flex;gap:6px}.seg button{flex:1;padding:9px 4px;font-size:13px}
 .chips{display:flex;gap:10px}
 .chip{width:34px;height:34px;border-radius:50%;border:3px solid transparent}
 .chip.on{border-color:#fff}
 video{width:100%;max-height:44vh;background:#000;border-radius:10px}
-.vname{font-size:12px;color:var(--sub);margin:6px 0}
+.vname{font-size:12px;color:var(--sub);margin:6px 0;line-height:1.5}
+.box{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px}
+.box .t{font-size:14px;margin-bottom:6px;word-break:break-all}
+.cover{width:100%;height:170px;object-fit:cover;border-radius:10px;background:#000;display:block;margin-bottom:6px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
+.grid img{width:100%;height:86px;object-fit:cover;border-radius:8px;background:#000}
+.gd{font-size:13px;line-height:1.6;color:var(--text)}
+.gd .k{display:inline-block;font-size:11px;background:var(--panel2);border-radius:6px;padding:1px 7px;margin-left:6px;color:var(--sub)}
+.mk{display:flex;gap:6px;align-items:center;margin:4px 0}
+.mk button.go{flex:1;text-align:left;padding:7px 10px;font-size:13px}
+a{color:#7fb0ff}
+#viewer{position:fixed;inset:0;background:#000e;z-index:40;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px}
+#viewer img{max-width:100%;max-height:72%;border-radius:8px}
+#toast{position:fixed;left:50%;top:calc(var(--safe-t) + 64px);transform:translateX(-50%);background:#000d;color:#fff;border-radius:20px;padding:10px 16px;font-size:13px;z-index:60;display:none;max-width:86%;text-align:center}
+#lock{position:fixed;inset:0;background:var(--bg);z-index:100;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+#lock .lt{font-size:20px;font-weight:700}
+#lock .dots{font-size:26px;letter-spacing:10px;height:34px}
+#lock .pad{display:grid;grid-template-columns:repeat(3,76px);gap:12px}
+#lock .pad button{height:76px;border-radius:38px;font-size:26px;padding:0}
+.big{font-size:15px;padding:13px 14px}
+.sbar{position:sticky;bottom:calc(-1 * (var(--safe-b) + 20px));margin:12px -16px calc(-1 * (var(--safe-b) + 20px));padding:10px 16px calc(var(--safe-b) + 14px);background:var(--panel);border-top:1px solid var(--line);z-index:3}
+.gd p{margin:0 0 10px}
+.sbar button{padding:8px 12px;font-size:14px}
+.sbar{gap:6px}
 </style>
 </head>
 <body>
 
-<!-- 一覧 -->
 <div id="vList" class="view on">
-  <header><h1>BJJフロー</h1><button id="btnNew" class="primary">＋ 新規</button></header>
+  <header><h1>BJJフロー</h1><button id="btnSearch">🔍</button><button id="btnNew" class="primary">＋ 新規</button></header>
   <div id="list"></div>
 </div>
 
-<!-- 編集 -->
 <div id="vBoard" class="view">
   <header>
     <button id="btnBack">‹ 戻る</button>
     <h1 id="boardTitle"></h1>
+    <button id="btnUndo" title="元に戻す">↶</button>
+    <button id="btnLock" title="閲覧ロック">🔓</button>
     <button id="btnBoardMenu">⋯</button>
   </header>
   <div id="canvas">
@@ -81,420 +121,18 @@ video{width:100%;max-height:44vh;background:#000;border-radius:10px}
 
 <div id="shade"></div>
 <div id="sheet"></div>
-<input type="file" id="fileVideo" accept="video/*" hidden>
-<input type="file" id="fileJson" accept="application/json,.json" hidden>
+<div id="viewer"></div>
+<div id="toast"></div>
+<div id="lock"></div>
+<input type="file" id="fileAny" hidden>
 
+<script src="glossary.js"></script>
+<script src="app.js"></script>
 <script>
-'use strict';
-/* ========== 保存（端末内 IndexedDB） ========== */
-const DB = {
-  db: null,
-  open() {
-    return new Promise((res, rej) => {
-      const r = indexedDB.open('bjjflow', 1);
-      r.onupgradeneeded = () => { r.result.createObjectStore('kv'); r.result.createObjectStore('videos'); };
-      r.onsuccess = () => { this.db = r.result; res(); };
-      r.onerror = () => rej(r.error);
-    });
-  },
-  tx(store, mode, fn) {
-    return new Promise((res, rej) => {
-      const t = this.db.transaction(store, mode);
-      const req = fn(t.objectStore(store));
-      t.oncomplete = () => res(req && req.result);
-      t.onerror = () => rej(t.error);
-      t.onabort = () => rej(t.error);
-    });
-  },
-  get: (s, k) => DB.tx(s, 'readonly', o => o.get(k)),
-  put: (s, k, v) => DB.tx(s, 'readwrite', o => o.put(v, k)),
-  del: (s, k) => DB.tx(s, 'readwrite', o => o.delete(k)),
-};
-
-let state = { boards: [] };
-let saveTimer = null;
-function save() {
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => DB.put('kv', 'state', JSON.parse(JSON.stringify(state))).catch(e => alert('保存に失敗しました: ' + e)), 250);
-}
-const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
-const $ = s => document.querySelector(s);
-const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-
-const COLORS = [['#4f8cff', 'ポジション'], ['#3ecf8e', 'スイープ/パス'], ['#ff5d5d', 'サブミッション'], ['#f5a524', 'エスケープ'], ['#b07cff', 'その他']];
-
-/* ========== 画面切り替え ========== */
-function show(id) { document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === id)); }
-
-/* ========== 一覧 ========== */
-function renderList() {
-  const el = $('#list');
-  el.innerHTML = state.boards.length ? '' : '<div class="foot">まだフローチャートがありません。右上の「＋ 新規」から作成してください。</div>';
-  state.boards.forEach(b => {
-    const c = document.createElement('div');
-    c.className = 'card';
-    const nv = b.nodes.filter(n => n.videoId).length;
-    c.innerHTML = `<div style="flex:1;min-width:0"><div class="nm">${esc(b.name)}</div><div class="meta">技 ${b.nodes.length} ・ 動画 ${nv}</div></div><span style="color:var(--sub)">›</span>`;
-    c.onclick = () => openBoard(b.id);
-    el.appendChild(c);
-  });
-  const f = document.createElement('div');
-  f.className = 'foot';
-  f.innerHTML = `<div class="btns" style="display:flex;gap:8px;flex-wrap:wrap"><button id="btnExp">メモ・構成を書き出す</button><button id="btnImp">読み込む</button></div>
-  <p>データと動画はこの端末のブラウザ内だけに保存され、外部には送信されません。書き出しファイルには動画は含まれません（フローチャートの構成とメモのみ）。</p><p id="stor"></p>`;
-  el.appendChild(f);
-  $('#btnExp').onclick = exportJson;
-  $('#btnImp').onclick = () => $('#fileJson').click();
-  if (navigator.storage?.estimate) navigator.storage.estimate().then(e => {
-    const mb = n => (n / 1048576).toFixed(0);
-    $('#stor').textContent = `使用中の保存容量: 約 ${mb(e.usage)} MB / 目安上限 ${mb(e.quota)} MB`;
-  });
-}
-$('#btnNew').onclick = () => {
-  const name = prompt('フローチャート名（例：クローズドガード）');
-  if (!name) return;
-  const b = { id: uid(), name, nodes: [], edges: [], view: { x: 20, y: 20, k: 1 } };
-  state.boards.unshift(b); save(); openBoard(b.id);
-};
-
-/* ========== 書き出し / 読み込み ========== */
-async function exportJson() {
-  const data = JSON.stringify({ app: 'bjjflow', version: 1, boards: state.boards.map(b => ({ ...b, nodes: b.nodes.map(n => ({ ...n, videoId: null })) })) }, null, 1);
-  const file = new File([data], `bjjflow-${new Date().toISOString().slice(0, 10)}.json`, { type: 'application/json' });
-  try {
-    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file] }); return; }
-  } catch (e) { if (e.name === 'AbortError') return; }
-  const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = file.name; a.click();
-}
-$('#fileJson').onchange = async e => {
-  const f = e.target.files[0]; e.target.value = '';
-  if (!f) return;
-  try {
-    const d = JSON.parse(await f.text());
-    if (d.app !== 'bjjflow') throw new Error('形式が違います');
-    if (!confirm(`${d.boards.length}件のフローチャートを追加で読み込みます（動画は含まれません）。`)) return;
-    d.boards.forEach(b => { b.id = uid(); state.boards.push(b); });
-    save(); renderList();
-  } catch (err) { alert('読み込めませんでした: ' + err.message); }
-};
-
-/* ========== ボード編集 ========== */
-let board = null, selId = null, connectFrom = null;
-const canvas = $('#canvas'), world = $('#world'), nodesEl = $('#nodes'), edgeG = $('#edgeG');
-const NW = 140;
-
-function openBoard(id) {
-  board = state.boards.find(b => b.id === id);
-  selId = null; connectFrom = null; setBanner('');
-  $('#boardTitle').textContent = board.name;
-  show('vBoard'); applyView(); renderNodes();
-}
-$('#btnBack').onclick = () => { closeSheet(); board = null; renderList(); show('vList'); };
-function applyView() { const v = board.view; world.style.transform = `translate(${v.x}px,${v.y}px) scale(${v.k})`; }
-function setBanner(t) { const b = $('#banner'); b.style.display = t ? 'block' : 'none'; b.textContent = t; }
-
-function renderNodes() {
-  nodesEl.innerHTML = '';
-  board.nodes.forEach(n => {
-    const d = document.createElement('div');
-    d.className = 'node'; d.dataset.id = n.id;
-    d.style.left = n.x + 'px'; d.style.top = n.y + 'px'; d.style.setProperty('--c', n.color || COLORS[0][0]);
-    d.innerHTML = `<div>${esc(n.title) || '（無題）'}</div>` + ((n.videoId || n.videoRef || n.memo || (n.links && n.links.length)) ? `<div class="ic">${n.videoId ? '🎬' : ''}${n.videoRef ? '📎' : ''}${(n.links && n.links.length) ? ' 🔗' : ''}${n.memo ? ' 📝' : ''}</div>` : '');
-    if (n.id === selId) d.classList.add('sel');
-    if (n.id === connectFrom) d.classList.add('from');
-    nodesEl.appendChild(d);
-  });
-  renderEdges();
-}
-function nodeEl(id) { return nodesEl.querySelector(`[data-id="${id}"]`); }
-function clip(cx, cy, w, h, dx, dy) {
-  if (!dx && !dy) return [cx, cy];
-  const t = Math.min(dx ? (w / 2) / Math.abs(dx) : Infinity, dy ? (h / 2) / Math.abs(dy) : Infinity);
-  return [cx + dx * t, cy + dy * t];
-}
-function renderEdges() {
-  edgeG.innerHTML = '';
-  board.edges.forEach(e => {
-    const a = board.nodes.find(n => n.id === e.from), b = board.nodes.find(n => n.id === e.to);
-    const ea = a && nodeEl(a.id), eb = b && nodeEl(b.id);
-    if (!ea || !eb) return;
-    const aw = ea.offsetWidth, ah = ea.offsetHeight, bw = eb.offsetWidth, bh = eb.offsetHeight;
-    const ac = [a.x + aw / 2, a.y + ah / 2], bc = [b.x + bw / 2, b.y + bh / 2];
-    const dx = bc[0] - ac[0], dy = bc[1] - ac[1];
-    const p1 = clip(ac[0], ac[1], aw + 4, ah + 4, dx, dy), p2 = clip(bc[0], bc[1], bw + 8, bh + 8, -dx, -dy);
-    const ns = 'http://www.w3.org/2000/svg';
-    const g = document.createElementNS(ns, 'g'); g.dataset.eid = e.id;
-    const d = `M${p1[0]},${p1[1]} L${p2[0]},${p2[1]}`;
-    const line = document.createElementNS(ns, 'path'); line.setAttribute('d', d); line.setAttribute('class', 'edge-line'); line.setAttribute('marker-end', 'url(#arr)');
-    const hit = document.createElementNS(ns, 'path'); hit.setAttribute('d', d); hit.setAttribute('class', 'edge-hit');
-    g.append(line, hit);
-    if (e.label) {
-      const t = document.createElementNS(ns, 'text'); t.setAttribute('class', 'edge-lbl');
-      t.setAttribute('x', (p1[0] + p2[0]) / 2); t.setAttribute('y', (p1[1] + p2[1]) / 2 - 4); t.textContent = e.label; g.append(t);
-    }
-    edgeG.appendChild(g);
-  });
-}
-
-/* --- タッチ操作（パン / ピンチ / ノード移動 / タップ） --- */
-const pts = new Map(); let drag = null, pinch = null;
-canvas.addEventListener('pointerdown', ev => {
-  if (ev.target.closest('button')) return;
-  canvas.setPointerCapture(ev.pointerId);
-  pts.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
-  if (pts.size === 1) {
-    const nEl = ev.target.closest('.node'), eEl = ev.target.closest('[data-eid]');
-    const v = board.view;
-    if (nEl) { const n = board.nodes.find(x => x.id === nEl.dataset.id); drag = { type: connectFrom ? 'tap' : 'node', kind: 'node', id: n.id, sx: ev.clientX, sy: ev.clientY, ox: n.x, oy: n.y, moved: false }; }
-    else if (eEl) drag = { type: 'tap', kind: 'edge', id: eEl.dataset.eid, sx: ev.clientX, sy: ev.clientY, moved: false };
-    else drag = { type: 'pan', kind: 'bg', sx: ev.clientX, sy: ev.clientY, ox: v.x, oy: v.y, moved: false };
-  } else if (pts.size === 2) {
-    drag = null;
-    const [p, q] = [...pts.values()], r = canvas.getBoundingClientRect(), v = board.view;
-    const cx = (p.x + q.x) / 2 - r.left, cy = (p.y + q.y) / 2 - r.top;
-    pinch = { d0: Math.hypot(p.x - q.x, p.y - q.y), k0: v.k, wx: (cx - v.x) / v.k, wy: (cy - v.y) / v.k };
+(function () {
+  if (window.__ver_app !== 5 || window.__ver_gloss !== 5) {
+    document.body.innerHTML = '<div style="padding:30px;line-height:1.8;font-size:16px">ファイルの更新が途中のようです。<br>GitHubに、zipの中の<b>すべてのファイル</b>（index.html / app.js / glossary.js / sw.js / manifest.webmanifest / アイコン2つ）をアップロードし直してください。<br><br>1〜2分待ってから、ページを開き直してください。</div>';
   }
-});
-canvas.addEventListener('pointermove', ev => {
-  if (!pts.has(ev.pointerId)) return;
-  pts.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
-  const v = board.view;
-  if (pinch && pts.size >= 2) {
-    const [p, q] = [...pts.values()], r = canvas.getBoundingClientRect();
-    const k = Math.min(2.5, Math.max(0.25, pinch.k0 * Math.hypot(p.x - q.x, p.y - q.y) / pinch.d0));
-    const cx = (p.x + q.x) / 2 - r.left, cy = (p.y + q.y) / 2 - r.top;
-    v.k = k; v.x = cx - pinch.wx * k; v.y = cy - pinch.wy * k; applyView(); return;
-  }
-  if (!drag) return;
-  const dx = ev.clientX - drag.sx, dy = ev.clientY - drag.sy;
-  if (!drag.moved && Math.hypot(dx, dy) > 6) drag.moved = true;
-  if (!drag.moved) return;
-  if (drag.type === 'node') {
-    const n = board.nodes.find(x => x.id === drag.id);
-    n.x = Math.round(drag.ox + dx / v.k); n.y = Math.round(drag.oy + dy / v.k);
-    const el = nodeEl(n.id); el.style.left = n.x + 'px'; el.style.top = n.y + 'px'; renderEdges();
-  } else if (drag.type === 'pan') { v.x = drag.ox + dx; v.y = drag.oy + dy; applyView(); }
-});
-function endPointer(ev) {
-  if (!pts.has(ev.pointerId)) return;
-  pts.delete(ev.pointerId);
-  if (pinch) { if (pts.size < 2) { pinch = null; drag = null; save(); } return; }
-  const d = drag; drag = null;
-  if (!d) return;
-  if (d.moved) { save(); return; }
-  tap(d);
-}
-canvas.addEventListener('pointerup', endPointer);
-canvas.addEventListener('pointercancel', endPointer);
-
-function tap(d) {
-  if (d.kind === 'node') {
-    if (connectFrom && connectFrom !== d.id) {
-      if (!board.edges.some(e => e.from === connectFrom && e.to === d.id)) board.edges.push({ id: uid(), from: connectFrom, to: d.id, label: '' });
-      const from = connectFrom; connectFrom = null; setBanner(''); save(); renderNodes();
-      const e = board.edges[board.edges.length - 1]; if (e.from === from && e.to === d.id) openEdgeSheet(e.id);
-      return;
-    }
-    if (connectFrom === d.id) { connectFrom = null; setBanner(''); renderNodes(); return; }
-    openNodeSheet(d.id);
-  } else if (d.kind === 'edge') openEdgeSheet(d.id);
-  else if (connectFrom) { connectFrom = null; setBanner(''); renderNodes(); }
-}
-
-$('#fab').onclick = () => {
-  const r = canvas.getBoundingClientRect(), v = board.view;
-  const jitter = (board.nodes.length % 5) * 14;
-  const n = { id: uid(), x: Math.round((r.width / 2 - v.x) / v.k - NW / 2 + jitter), y: Math.round((r.height / 2 - v.y) / v.k - 24 + jitter), title: '', memo: '', color: COLORS[0][0], videoId: null, videoName: '' };
-  board.nodes.push(n); save(); renderNodes(); openNodeSheet(n.id, true);
-};
-$('#fit').onclick = () => {
-  if (!board.nodes.length) { board.view = { x: 20, y: 20, k: 1 }; applyView(); save(); return; }
-  const r = canvas.getBoundingClientRect();
-  const xs = board.nodes.map(n => n.x), ys = board.nodes.map(n => n.y);
-  const minX = Math.min(...xs) - 20, maxX = Math.max(...xs) + NW + 20, minY = Math.min(...ys) - 20, maxY = Math.max(...ys) + 80;
-  const k = Math.min(1.2, Math.max(0.25, Math.min(r.width / (maxX - minX), r.height / (maxY - minY))));
-  board.view = { k, x: (r.width - (maxX - minX) * k) / 2 - minX * k, y: (r.height - (maxY - minY) * k) / 2 - minY * k };
-  applyView(); save();
-};
-$('#btnBoardMenu').onclick = () => {
-  openSheet(`<div class="row"><label>フローチャート名</label><input type="text" id="bn" value="${esc(board.name)}"></div>
-  <div class="btns"><button id="bdel" class="danger">このフローチャートを削除</button><button id="bok" class="primary">閉じる</button></div>`);
-  $('#bn').oninput = e => { board.name = e.target.value || '無題'; $('#boardTitle').textContent = board.name; save(); };
-  $('#bok').onclick = closeSheet;
-  $('#bdel').onclick = async () => {
-    if (!confirm(`「${board.name}」と、紐づく動画をこの端末から削除します。よろしいですか？`)) return;
-    for (const n of board.nodes) if (n.videoId) await DB.del('videos', n.videoId);
-    state.boards = state.boards.filter(b => b !== board); save(); closeSheet(); board = null; renderList(); show('vList');
-  };
-};
-
-/* ========== シート ========== */
-let curUrl = null;
-function openSheet(html) { $('#sheet').innerHTML = html; $('#sheet').style.display = 'block'; $('#shade').style.display = 'block'; }
-function closeSheet() {
-  if (curUrl) { URL.revokeObjectURL(curUrl); curUrl = null; }
-  $('#sheet').style.display = 'none'; $('#shade').style.display = 'none'; $('#sheet').innerHTML = '';
-  if (board) { selId = null; renderNodes(); }
-}
-$('#shade').onclick = closeSheet;
-
-async function openNodeSheet(id, focusTitle) {
-  const n = board.nodes.find(x => x.id === id); selId = id; renderNodes();
-  const chips = COLORS.map(([c, nm]) => `<div class="chip ${c === n.color ? 'on' : ''}" data-c="${c}" title="${nm}" style="background:${c}"></div>`).join('');
-  openSheet(`<div class="row"><label>技・ポジション名</label><input type="text" id="nt" value="${esc(n.title)}" placeholder="例：クローズドガード"></div>
-  <div class="row"><label>種類（色）</label><div class="chips">${chips}</div></div>
-  <div class="row"><label>メモ</label><textarea id="nm" placeholder="ポイント、注意点など">${esc(n.memo)}</textarea></div>
-  <div class="row" id="vbox"></div>
-  <div class="row" id="lbox"></div>
-  <div class="btns"><button id="bcon">→ 矢印をつなぐ</button><button id="bdel" class="danger">削除</button><button id="bok" class="primary" style="margin-left:auto">閉じる</button></div>`);
-  $('#nt').oninput = e => { n.title = e.target.value; save(); };
-  $('#nm').oninput = e => { n.memo = e.target.value; save(); };
-  document.querySelectorAll('.chip').forEach(c => c.onclick = () => { n.color = c.dataset.c; document.querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === c)); save(); });
-  $('#bok').onclick = closeSheet;
-  $('#bcon').onclick = () => { connectFrom = id; closeSheet(); connectFrom = id; setBanner('つなぎ先の技をタップ（空白タップで中止）'); renderNodes(); };
-  $('#bdel').onclick = async () => {
-    if (!confirm('この技を削除します（動画も端末から消えます）。')) return;
-    if (n.videoId) await DB.del('videos', n.videoId);
-    board.nodes = board.nodes.filter(x => x !== n); board.edges = board.edges.filter(e => e.from !== id && e.to !== id);
-    save(); closeSheet();
-  };
-  n.links = n.links || [];
-  renderLinks(n);
-  await renderVideoBox(n);
-  if (focusTitle) $('#nt').focus();
-}
-async function renderVideoBox(n) {
-  const box = $('#vbox'); if (!box) return;
-  if (curUrl) { URL.revokeObjectURL(curUrl); curUrl = null; }
-  let lost = '';
-  if (n.videoId) {
-    const blob = await DB.get('videos', n.videoId);
-    if (blob) {
-      curUrl = URL.createObjectURL(blob);
-      box.innerHTML = `<label>動画（端末内に取り込み済み・オフライン再生OK）</label><video src="${curUrl}" controls playsinline preload="metadata"></video><div class="vname">${esc(n.videoName)}</div>
-      <div class="btns"><button id="vrep">入れ替え</button><button id="vrm" class="danger">動画を外す</button></div>`;
-      $('#vrep').onclick = () => pickVideo(n, 'copy'); $('#vrm').onclick = async () => { await DB.del('videos', n.videoId); n.videoId = null; n.videoName = ''; save(); renderVideoBox(n); renderNodes(); };
-      return;
-    }
-    lost = `<div class="vname" style="color:var(--danger)">取り込んだ動画「${esc(n.videoName)}」が端末から見つかりません（ブラウザが容量確保のため消した可能性があります）。選び直してください。</div>`;
-    n.videoId = null; n.videoName = ''; save(); renderNodes();
-  }
-  if (n.videoRef) {
-    box.innerHTML = `<label>動画（取り込まず参照のみ・容量を使わない）</label><div class="vname">📎 ${esc(n.videoRef)}</div><div id="vplay"></div>
-    <div class="btns"><button id="vopen" class="primary">▶ 再生する（ファイルを選ぶ）</button><button id="vrm" class="danger">参照を外す</button></div>`;
-    $('#vopen').onclick = () => {
-      const inp = $('#fileVideo');
-      inp.onchange = e => {
-        const f = e.target.files[0]; e.target.value = '';
-        if (!f) return;
-        if (f.name !== n.videoRef && !confirm(`記録した名前（${n.videoRef}）と違うファイルです。再生しますか？`)) return;
-        if (curUrl) URL.revokeObjectURL(curUrl);
-        curUrl = URL.createObjectURL(f);
-        $('#vplay').innerHTML = `<video src="${curUrl}" controls playsinline autoplay></video>`;
-      };
-      inp.click();
-    };
-    $('#vrm').onclick = () => { n.videoRef = null; save(); renderVideoBox(n); renderNodes(); };
-    return;
-  }
-  box.innerHTML = `<label>動画（端末内のファイル／写真）</label>${lost}
-  <div class="btns"><button id="vadd">🎬 取り込む（端末内にコピー）</button><button id="vref">📎 取り込まず名前だけ記録</button></div>
-  <div class="vname">取り込む：オフラインですぐ再生できるが、動画の分だけ保存容量を使う。<br>名前だけ：容量は使わないが、再生のたびにファイルを選ぶ必要がある。</div>`;
-  $('#vadd').onclick = () => pickVideo(n, 'copy');
-  $('#vref').onclick = () => pickVideo(n, 'ref');
-}
-function pickVideo(n, mode) {
-  const inp = $('#fileVideo');
-  inp.onchange = async e => {
-    const f = e.target.files[0]; e.target.value = '';
-    if (!f) return;
-    if (mode === 'ref') { n.videoRef = f.name; save(); renderNodes(); renderVideoBox(n); return; }
-    $('#vbox').innerHTML = '<label>動画</label><div class="vname">端末内に保存中…（大きい動画は時間がかかります）</div>';
-    try {
-      const old = n.videoId, vid = uid();
-      await DB.put('videos', vid, f);
-      n.videoId = vid; n.videoName = f.name; n.videoRef = null;
-      if (old) await DB.del('videos', old);
-      save(); renderNodes();
-    } catch (err) { alert('動画を保存できませんでした（容量不足の可能性）: ' + err); }
-    renderVideoBox(n);
-  };
-  inp.click();
-}
-
-/* ---- リンク（YouTubeなど） ---- */
-function parseT(t) {
-  if (/^\d+$/.test(t)) return +t;
-  const m = t.match(/(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?/);
-  return (+m[1] || 0) * 3600 + (+m[2] || 0) * 60 + (+m[3] || 0);
-}
-function normUrl(u) { u = u.trim(); return /^https?:\/\//i.test(u) ? u : 'https://' + u; }
-function ytInfo(u) {
-  try {
-    const x = new URL(normUrl(u)), h = x.hostname.replace(/^(www|m|music)\./, '');
-    let id = null;
-    if (h === 'youtu.be') id = x.pathname.slice(1, 12);
-    else if (h === 'youtube.com' || h === 'youtube-nocookie.com') {
-      if (x.pathname === '/watch') id = x.searchParams.get('v');
-      else { const m = x.pathname.match(/^\/(shorts|embed|live)\/([\w-]{11})/); if (m) id = m[2]; }
-    }
-    if (!id || !/^[\w-]{11}$/.test(id)) return null;
-    return { id, start: parseT(x.searchParams.get('t') || x.searchParams.get('start') || '0') };
-  } catch { return null; }
-}
-function renderLinks(n) {
-  const box = $('#lbox'); if (!box) return;
-  const items = (n.links || []).map(l => {
-    const name = l.label || (l.yt ? 'YouTube動画' : (() => { try { return new URL(l.url).hostname; } catch { return l.url; } })());
-    return `<div class="lk" data-id="${l.id}" style="background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px">
-      <div style="font-size:14px;margin-bottom:8px;word-break:break-all">${l.yt ? '▶︎ ' : '🔗 '}${esc(name)}</div>
-      <div class="lplay"></div>
-      <div class="btns">${l.yt ? '<button class="lemb">埋め込み再生</button>' : ''}<a href="${esc(l.url)}" target="_blank" rel="noopener noreferrer" style="text-decoration:none"><button type="button">${l.yt ? 'YouTubeで開く' : '開く'}</button></a><button class="ldel danger">削除</button></div></div>`;
-  }).join('');
-  box.innerHTML = `<label>リンク（YouTubeなど）</label>${items}
-  <input type="text" id="lu" placeholder="URLを貼り付け（youtube.com など）" inputmode="url" autocapitalize="off" autocorrect="off" style="margin-bottom:8px">
-  <input type="text" id="ll" placeholder="ラベル（任意）例：ヒップバンプ解説 3:20〜" style="margin-bottom:8px">
-  <button id="ladd">リンクを追加</button>
-  <div class="vname">YouTubeの埋め込み再生はネット接続が必要で、再生時にYouTubeへ通信します。追加しただけでは通信しません。</div>`;
-  $('#ladd').onclick = () => {
-    const u = $('#lu').value.trim(); if (!u) return;
-    let url; try { url = new URL(normUrl(u)).href; } catch { alert('URLの形式が正しくありません'); return; }
-    n.links.push({ id: uid(), url, label: $('#ll').value.trim(), yt: ytInfo(url) });
-    save(); renderNodes(); renderLinks(n);
-  };
-  box.querySelectorAll('.lk').forEach(el => {
-    const l = n.links.find(x => x.id === el.dataset.id);
-    el.querySelector('.ldel').onclick = () => { if (!confirm('このリンクを削除しますか？')) return; n.links = n.links.filter(x => x !== l); save(); renderNodes(); renderLinks(n); };
-    const emb = el.querySelector('.lemb');
-    if (emb) emb.onclick = () => {
-      const p = el.querySelector('.lplay');
-      if (p.firstChild) { p.innerHTML = ''; emb.textContent = '埋め込み再生'; return; }
-      p.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${l.yt.id}?start=${l.yt.start}&playsinline=1&rel=0" allow="fullscreen; picture-in-picture; encrypted-media" allowfullscreen style="width:100%;aspect-ratio:16/9;border:0;border-radius:10px;background:#000;margin-bottom:8px"></iframe>`;
-      emb.textContent = '閉じる';
-    };
-  });
-}
-function openEdgeSheet(id) {
-  const e = board.edges.find(x => x.id === id);
-  const a = board.nodes.find(n => n.id === e.from), b = board.nodes.find(n => n.id === e.to);
-  openSheet(`<div class="row"><label>${esc(a?.title || '無題')} → ${esc(b?.title || '無題')}</label>
-  <input type="text" id="el" value="${esc(e.label)}" placeholder="条件・きっかけ（例：相手が腕を引く）"></div>
-  <div class="btns"><button id="erev">向きを逆にする</button><button id="edel" class="danger">削除</button><button id="bok" class="primary" style="margin-left:auto">閉じる</button></div>`);
-  $('#el').oninput = ev => { e.label = ev.target.value; save(); renderEdges(); };
-  $('#erev').onclick = () => { [e.from, e.to] = [e.to, e.from]; save(); closeSheet(); };
-  $('#edel').onclick = () => { board.edges = board.edges.filter(x => x !== e); save(); closeSheet(); };
-  $('#bok').onclick = closeSheet;
-}
-
-/* ========== 起動 ========== */
-(async function init() {
-  try {
-    await DB.open();
-    const s = await DB.get('kv', 'state'); if (s) state = s;
-    if (navigator.storage?.persist) navigator.storage.persist();
-  } catch (e) { alert('この環境では保存機能が使えません: ' + e); }
-  renderList();
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 })();
 </script>
 </body>
